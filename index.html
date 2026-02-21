@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌐 Global Sync</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="dashboard-grid">
+        <div class="panel" id="weather-panel">
+            <div class="panel-header-container">
+                <div class="weather-header-labels">
+                    <span>°C</span>
+                    <span>°F</span>
+                </div>
+            </div>
+            
+            <div class="weather-body">
+                <div class="thermometer-container" id="weather-rail">
+                    <div class="central-rail"></div>
+                </div>
+            </div>
+
+            <div class="panel-footer">
+                <span class="toggle-text">°C</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-unit">
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-text">°F</span>
+            </div>
+        </div>
+
+        <div class="panel" id="time-panel">
+            <div class="panel-header-container time-header-container">
+                <div class="time-header-row" id="time-header"></div>
+            </div>
+            
+            <div class="time-grid-container" id="time-grid-wrapper">
+                <div id="red-line"></div>
+                <div id="time-grid"></div>
+            </div>
+
+            <div class="panel-footer time-footer">
+                <div class="footer-center">
+                    <span class="toggle-text">24h</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="toggle-format">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="toggle-text">12h</span>
+                </div>
+                <button class="settings-btn" id="open-settings">+</button>
+            </div>
+        </div>
+    </div>
+
+    <dialog id="settings-modal" class="modal">
+        <div class="modal-content">
+            <h3>Settings</h3>
+            <div class="settings-section">
+                <div class="modal-headers">
+                    <span>City</span>
+                    <span class="work-hours-header">Work Hours</span>
+                    <span>Show</span>
+                </div>
+                <div id="city-toggles" class="city-toggles-grid"></div>
+            </div>
+            <div class="modal-actions">
+                <button id="cancel-settings" class="btn btn-secondary">Cancel</button>
+                <button id="save-settings" class="btn btn-primary">Save & Apply</button>
+            </div>
+        </div>
+    </dialog>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
