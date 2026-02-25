@@ -4,6 +4,32 @@ let userSettings = { cities: [], activeCalendars: [] };
 let useFahrenheit = false;
 let use12h = false;
 let activeCities = [];
+let dayOffset = 0; // 0 = Today, -1 = Yesterday, 1 = Tomorrow
+
+// Formats the date label based on your local timezone
+function getRelativeDateLabel(offset) {
+    if (offset === 0) return "Today";
+    if (offset === -1) return "Yesterday";
+    if (offset === 1) return "Tomorrow";
+    
+    const d = new Date();
+    d.setDate(d.getDate() + offset);
+    // Formats to "Wed 25 Feb" (removes commas if the browser adds them)
+    return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }).replace(/,/g, '');
+}
+
+// Triggered by the < > arrows to shift days
+window.changeDay = function(delta) {
+    dayOffset += delta;
+    renderTimeGrid(); 
+    
+    // Instantly clear old events visually while fetching new ones
+    const layer = document.getElementById('events-layer');
+    if (layer) layer.innerHTML = ''; 
+    
+    updateLive(); // Re-sync red line
+    if (isGoogleAuth) fetchEvents();
+};
 
 // --- GOOGLE API STATE ---
 let tokenClient;
@@ -94,10 +120,12 @@ function getGridBoundaries() {
     gridStart.setUTCHours(DEFAULT_CONFIG.baseStartHourUTC, 0, 0, 0);
     gridStart.setUTCMinutes(gridStart.getUTCMinutes() - 30);
     
-    // If the current UTC time is before the visual start, the grid's top is "yesterday"
     if (now.getTime() < gridStart.getTime() + 30*60000) {
         gridStart.setUTCDate(gridStart.getUTCDate() - 1);
     }
+    
+    // Apply the day offset for Calendar fetching
+    gridStart.setUTCDate(gridStart.getUTCDate() + dayOffset);
     
     let gridEnd = new Date(gridStart.getTime() + 24 * 60 * 60 * 1000);
     return { gridStart, gridEnd };
@@ -114,10 +142,14 @@ function renderTimeGrid() {
 
     // Render Headers
     if (showCalendar) {
-        headerRow.innerHTML += `<div class="header-cell" id="cal-header">
-            <div class="h-city">My Schedule</div>
-            <div class="h-tz">Google Calendar</div>
-            <div class="h-time">--:--</div>
+        headerRow.innerHTML += `<div class="header-cell" id="cal-header" style="min-width: 140px;">
+            <div class="h-city" style="display:flex; justify-content:space-between; align-items:center; width:100%; padding:0 10px; box-sizing:border-box;">
+                <button onclick="changeDay(-1)" style="background:none;border:none;cursor:pointer;font-weight:bold;color:var(--text-secondary);padding:0 5px;font-size:1.1rem;">&lt;</button>
+                <span>Calendar</span>
+                <button onclick="changeDay(1)" style="background:none;border:none;cursor:pointer;font-weight:bold;color:var(--text-secondary);padding:0 5px;font-size:1.1rem;">&gt;</button>
+            </div>
+            <div class="h-tz" id="cal-date-label" style="margin-top:4px; font-weight:500;">${getRelativeDateLabel(dayOffset)}</div>
+            <div class="h-time"></div>
         </div>`;
     }
 
