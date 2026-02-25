@@ -2,6 +2,7 @@
 
 const DEFAULT_CONFIG = {
     baseStartHourUTC: 4, // Grid starts at 4 AM UTC
+    googleClientId: '1067615331638-1spk4kj94a4ni6qn39cgmgfb2lr4v74h.apps.googleusercontent.com', // <--- ADD YOUR CLIENT ID HERE
     cities: [
         { id: "sf", name: "San Francisco", timezone: "America/Los_Angeles", tzStd: "PST", tzDst: "PDT", lat: 37.77, lon: -122.41, workStart: 9, workEnd: 18, visible: true },
         { id: "la", name: "Los Angeles", timezone: "America/Los_Angeles", tzStd: "PST", tzDst: "PDT", lat: 34.05, lon: -118.24, workStart: 9, workEnd: 18, visible: false },
@@ -16,3 +17,4 @@ const DEFAULT_CONFIG = {
         { id: "yer", name: "Yerevan", timezone: "Asia/Yerevan", tzStd: "AMT", tzDst: "AMST", lat: 40.18, lon: 44.51, workStart: 9, workEnd: 18, visible: true }
     ]
 };
+

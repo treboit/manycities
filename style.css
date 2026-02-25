@@ -243,3 +243,46 @@ input:checked + .slider:before { transform: translateX(24px); }
 .btn:hover { opacity: 0.9; }
 .btn-secondary { background: #e0e0e0; color: var(--text-main); }
 .btn-primary { background: var(--accent-color); color: white; }
+
+/* --- CALENDAR & HIGHLIGHT STYLES --- */
+
+/* Highlights the user's local timezone */
+.local-tz {
+    background-color: rgba(26, 115, 232, 0.05) !important;
+}
+.header-cell.local-tz .h-city {
+    color: var(--accent-color);
+}
+.grid-cell.rest-zone.local-tz {
+    background-color: rgba(26, 115, 232, 0.08) !important;
+}
+
+/* Event container overlapping the grid */
+#events-layer {
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    pointer-events: none; /* Lets clicks pass through to grid underneath if needed */
+    z-index: 10;
+}
+
+.calendar-event {
+    position: absolute;
+    border-radius: 6px;
+    padding: 3px 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #fff;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: auto; /* Re-enable for tooltips/clicking */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.settings-section h3 {
+    margin: 0 0 15px 0;
+    font-size: 1.1rem;
+    color: var(--text-main);
+}
