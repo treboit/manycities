@@ -20,11 +20,13 @@
                     <span>°F</span>
                 </div>
             </div>
+            
             <div class="weather-body">
                 <div class="thermometer-container" id="weather-rail">
                     <div class="central-rail"></div>
                 </div>
             </div>
+
             <div class="panel-footer">
                 <span class="toggle-text">°C</span>
                 <label class="toggle-switch">
@@ -42,7 +44,6 @@
             
             <div class="time-grid-container" id="time-grid-wrapper">
                 <div id="events-layer"></div>
-                
                 <div id="red-line"></div>
                 <div id="time-grid"></div>
             </div>
@@ -56,36 +57,42 @@
                     </label>
                     <span class="toggle-text">12h</span>
                 </div>
-                <button class="settings-btn" id="open-settings">⚙️</button>
+                <button class="settings-btn" id="open-settings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
 
     <dialog id="settings-modal" class="modal">
         <div class="modal-content">
-            <div class="settings-section">
-                <h3>Time Zones</h3>
-                <div class="modal-headers">
-                    <span>City</span>
-                    <span class="work-hours-header">Work Hours (24h)</span>
-                    <span>Show</span>
-                </div>
-                <div id="city-toggles" class="city-toggles-grid"></div>
-            </div>
-
-            <div class="settings-section" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
-                <h3>Calendars</h3>
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                    <span style="font-size: 0.9rem; color: var(--text-secondary);">Sync with Google Calendar</span>
-                    <button id="google-auth-btn" class="btn btn-secondary">Sign In</button>
-                </div>
-                <div id="calendar-toggles" class="city-toggles-grid">
+            <div class="modal-scrollable">
+                <div class="settings-section">
+                    <h3>Time Zones</h3>
+                    <div class="modal-headers">
+                        <span>City</span>
+                        <span class="work-hours-header">Work Hours (24h)</span>
+                        <span>Show</span>
                     </div>
-            </div>
+                    <div id="city-toggles" class="city-toggles-grid"></div>
+                </div>
 
+                <div class="settings-section" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                    <h3>Calendars</h3>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="font-size: 0.9rem; color: var(--text-secondary);">Sync with Google Calendar</span>
+                        <button id="google-auth-btn" class="btn btn-secondary">Sign In</button>
+                    </div>
+                    <div id="calendar-toggles" class="city-toggles-grid"></div>
+                </div>
+            </div>
+            
             <div class="modal-actions">
                 <button id="cancel-settings" class="btn btn-secondary">Cancel</button>
-                <button id="save-settings" class="btn btn-primary">Save & Apply</button>
+                <button id="save-settings" class="btn btn-primary">Apply</button>
             </div>
         </div>
     </dialog>
