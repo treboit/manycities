@@ -44,7 +44,7 @@ body { font-family: 'Roboto', sans-serif; background-color: var(--bg-color); mar
 .h-time { font-size: 1.0rem; color: var(--accent-color); font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }
 
 /* Local TZ Highlights (Header Tint Only) */
-.header-cell.local-tz { background-color: rgba(26, 115, 232, 0.05); }
+.header-cell.local-tz { background-color: rgba(26, 115, 232, 0.1); }
 .header-cell.local-tz .h-city { color: var(--accent-color); }
 
 /* --- WEATHER BODY --- */
