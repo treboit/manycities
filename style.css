@@ -43,12 +43,9 @@ body { font-family: 'Roboto', sans-serif; background-color: var(--bg-color); mar
 .h-tz { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; }
 .h-time { font-size: 1.0rem; color: var(--accent-color); font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }
 
-/* Local TZ Highlights (Inner Border instead of Background) */
-.header-cell.local-tz { box-shadow: inset 2px 2px 0 var(--accent-color), inset -2px 0 0 var(--accent-color); }
-.grid-cell.local-tz { box-shadow: inset 2px 0 0 var(--accent-color), inset -2px 0 0 var(--accent-color); }
-.grid-row:last-child .grid-cell.local-tz { box-shadow: inset 2px -2px 0 var(--accent-color), inset -2px 0 0 var(--accent-color); }
+/* Local TZ Highlights (Header Tint Only) */
+.header-cell.local-tz { background-color: rgba(26, 115, 232, 0.05); }
 .header-cell.local-tz .h-city { color: var(--accent-color); }
-
 
 /* --- WEATHER BODY --- */
 .weather-body { flex: 1; position: relative; padding: 20px 0; overflow: hidden; }
@@ -69,7 +66,7 @@ body { font-family: 'Roboto', sans-serif; background-color: var(--bg-color); mar
 
 .grid-cell { font-size: 0.8rem; background-color: var(--zone-work); color: var(--text-main); }
 .grid-cell.rest-zone { background-color: var(--zone-rest); color: var(--text-rest); }
-.time-label { position: absolute; top: 0; transform: translateY(-50%); background-color: inherit; padding: 0 4px; border-radius: 4px; z-index: 2; }
+.time-label { position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%); background-color: inherit; padding: 0 4px; border-radius: 4px; z-index: 2; }
 
 #red-line { position: absolute; left: 0; height: 2px; background: var(--red-line); z-index: 50; pointer-events: none; box-shadow: 0 1px 4px rgba(26, 115, 232, 0.4); transition: top 1s linear; }
 #red-line::before { content: ''; position: absolute; left: -5px; top: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--red-line); }

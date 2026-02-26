@@ -131,16 +131,8 @@ function renderTimeGrid() {
         if (hourBlockUtc < 0) hourBlockUtc += 24;
 
         if (showCalendar) {
-            let localH = Math.floor(hourBlockUtc + localOffsetHours) % 24;
-            if (localH < 0) localH += 24;
-            
-            // Sync calendar background color to your local working hours 
-            const localCity = activeCities.find(c => c.offsetHours === localOffsetHours);
-            const calWorkStart = localCity ? localCity.workStart : 9;
-            const calWorkEnd = localCity ? localCity.workEnd : 18;
-            
-            const calClass = (localH >= calWorkStart && localH < calWorkEnd) ? 'grid-cell' : 'grid-cell rest-zone';
-            row.innerHTML += `<div class="${calClass} calendar-cell"></div>`;
+            // Force the calendar column background to always be the grey rest-zone
+            row.innerHTML += `<div class="grid-cell rest-zone calendar-cell"></div>`;
         }
 
         activeCities.forEach(city => {
