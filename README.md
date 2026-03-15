@@ -4,8 +4,6 @@ A minimal, offline-first dashboard for international teams — see what time it 
 
 **[manycities.app](https://treboit.github.io/manycities/)**
 
-![Manycities screenshot](screenshot.png)
-
 ---
 
 ## Features
@@ -50,18 +48,3 @@ This site uses [Umami](https://umami.is/) for anonymous, privacy-friendly analyt
 | Theme / format preferences | Your browser (localStorage) | No |
 | Page view count | Umami (anonymous) | Umami only (no personal data) |
 
----
-
-## Running locally
-
-No build step required — open `index.html` directly in a browser, or serve the folder with any static file server:
-
-```bash
-npx serve .
-```
-
----
-
-## License
-
-MIT
