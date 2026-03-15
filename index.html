@@ -6,9 +6,7 @@
     <title>🌐 Manycities</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    
-    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
-    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="8b0ac955-da02-4051-ad26-9819ed08f20f"></script>
 </head>
 <body>
 
@@ -20,7 +18,7 @@
                     <span>°F</span>
                 </div>
             </div>
-            
+
             <div class="weather-body">
                 <div class="thermometer-container" id="weather-rail">
                     <div class="central-rail"></div>
@@ -29,7 +27,7 @@
 
             <div class="panel-footer">
                 <span class="toggle-text">°C</span>
-                <label class="toggle-switch">
+                <label class="toggle-switch toggle-plain">
                     <input type="checkbox" id="toggle-unit">
                     <span class="slider"></span>
                 </label>
@@ -41,7 +39,7 @@
             <div class="panel-header-container time-header-container">
                 <div class="time-header-row" id="time-header"></div>
             </div>
-            
+
             <div class="time-grid-container" id="time-grid-wrapper">
                 <div id="events-layer"></div>
                 <div id="red-line"></div>
@@ -49,47 +47,69 @@
             </div>
 
             <div class="panel-footer time-footer">
-                <div class="footer-center">
-                    <span class="toggle-text">24h</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="toggle-format">
-                        <span class="slider"></span>
-                    </label>
-                    <span class="toggle-text">12h</span>
-                </div>
+                <!-- Gear: bottom-left of the time block -->
                 <button class="settings-btn" id="open-settings">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="3"></circle>
                         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                     </svg>
                 </button>
+
+                <!-- 24h/12h toggle: center -->
+                <div class="footer-center">
+                    <span class="toggle-text">24h</span>
+                    <label class="toggle-switch toggle-plain">
+                        <input type="checkbox" id="toggle-format">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="toggle-text">12h</span>
+                </div>
+
+                <!-- Dark/light toggle: bottom-right of the page -->
+                <div class="footer-right">
+                    <span class="toggle-text theme-icon">☀︎</span>
+                    <label class="toggle-switch toggle-plain">
+                        <input type="checkbox" id="toggle-theme">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="toggle-text theme-icon">☽</span>
+                </div>
             </div>
         </div>
     </div>
 
     <dialog id="settings-modal" class="modal">
         <div class="modal-content">
-            <div class="modal-scrollable">
-                <div class="settings-section">
-                    <h3>Time Zones</h3>
-                    <div class="modal-headers">
-                        <span>City</span>
-                        <span class="work-hours-header">Work Hours (24h)</span>
-                        <span>Show</span>
+            <div class="modal-columns">
+
+                <!-- Left column: Time Zones -->
+                <div class="modal-col" id="col-timezones">
+                    <div class="col-header">
+                        <h3>Time Zones &amp; Work Hours (24h)</h3>
+                        <div class="col-header-actions">
+                            <button id="tz-show-all" class="btn btn-sm btn-secondary">Show all</button>
+                            <button id="tz-hide-all" class="btn btn-sm btn-secondary">Hide all</button>
+                            <button id="tz-reset" class="btn btn-sm btn-secondary">Reset</button>
+                        </div>
                     </div>
                     <div id="city-toggles" class="city-toggles-grid"></div>
                 </div>
 
-                <div class="settings-section" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
-                    <h3>Calendars</h3>
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="font-size: 0.9rem; color: var(--text-secondary);">Sync with Google Calendar</span>
-                        <button id="google-auth-btn" class="btn btn-secondary">Sign In</button>
+                <!-- Right column: Calendar -->
+                <div class="modal-col" id="col-calendar">
+                    <div class="col-header" id="cal-col-header">
+                        <h3 id="cal-sync-title" class="cal-sync-title">
+                            Sync with Google Calendar
+                            <span class="expand-icon" id="cal-expand-icon">›</span>
+                        </h3>
+                        <div id="cal-col-actions" style="display:none;"></div>
                     </div>
-                    <div id="calendar-toggles" class="city-toggles-grid"></div>
+                    <div id="cal-instructions" class="cal-instructions" style="display:none;"></div>
+                    <div id="calendar-toggles"></div>
                 </div>
+
             </div>
-            
+
             <div class="modal-actions">
                 <button id="cancel-settings" class="btn btn-secondary">Cancel</button>
                 <button id="save-settings" class="btn btn-primary">Apply</button>
