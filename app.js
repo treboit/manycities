@@ -60,13 +60,74 @@ function saveSettings() { localStorage.setItem('manyCitiesSettings', JSON.string
 
 const localOffsetHours = -(new Date().getTimezoneOffset() / 60);
 
+// [std, dst] abbreviations for common IANA timezone IDs
+const TZ_ABBR = {
+    'America/Los_Angeles':['PST','PDT'], 'America/Vancouver':['PST','PDT'],
+    'America/Denver':['MST','MDT'],      'America/Phoenix':['MST','MST'],
+    'America/Chicago':['CST','CDT'],     'America/Mexico_City':['CST','CDT'],
+    'America/New_York':['EST','EDT'],    'America/Toronto':['EST','EDT'],
+    'America/Halifax':['AST','ADT'],     'America/St_Johns':['NST','NDT'],
+    'America/Sao_Paulo':['BRT','BRST'],  'America/Argentina/Buenos_Aires':['ART','ART'],
+    'America/Santiago':['CLT','CLST'],   'America/Lima':['PET','PET'],
+    'America/Bogota':['COT','COT'],      'America/Caracas':['VET','VET'],
+    'America/Anchorage':['AKST','AKDT'], 'Pacific/Honolulu':['HST','HST'],
+    'Europe/London':['GMT','BST'],       'Europe/Dublin':['GMT','IST'],
+    'Europe/Lisbon':['WET','WEST'],      'Atlantic/Azores':['AZOT','AZOST'],
+    'Europe/Paris':['CET','CEST'],       'Europe/Berlin':['CET','CEST'],
+    'Europe/Madrid':['CET','CEST'],      'Europe/Rome':['CET','CEST'],
+    'Europe/Amsterdam':['CET','CEST'],   'Europe/Brussels':['CET','CEST'],
+    'Europe/Zurich':['CET','CEST'],      'Europe/Vienna':['CET','CEST'],
+    'Europe/Prague':['CET','CEST'],      'Europe/Warsaw':['CET','CEST'],
+    'Europe/Stockholm':['CET','CEST'],   'Europe/Oslo':['CET','CEST'],
+    'Europe/Copenhagen':['CET','CEST'],  'Europe/Budapest':['CET','CEST'],
+    'Europe/Belgrade':['CET','CEST'],    'Europe/Zagreb':['CET','CEST'],
+    'Europe/Helsinki':['EET','EEST'],    'Europe/Athens':['EET','EEST'],
+    'Europe/Bucharest':['EET','EEST'],   'Europe/Sofia':['EET','EEST'],
+    'Europe/Riga':['EET','EEST'],        'Europe/Vilnius':['EET','EEST'],
+    'Europe/Tallinn':['EET','EEST'],     'Europe/Kiev':['EET','EEST'],
+    'Europe/Nicosia':['EET','EEST'],     'Europe/Istanbul':['TRT','TRT'],
+    'Europe/Moscow':['MSK','MSK'],       'Europe/Minsk':['FET','FET'],
+    'Asia/Yerevan':['AMT','AMST'],       'Asia/Tbilisi':['GET','GET'],
+    'Asia/Baku':['AZT','AZST'],          'Asia/Tashkent':['UZT','UZT'],
+    'Asia/Almaty':['ALMT','ALMT'],       'Asia/Tehran':['IRST','IRDT'],
+    'Asia/Dubai':['GST','GST'],          'Asia/Riyadh':['AST','AST'],
+    'Asia/Karachi':['PKT','PKT'],        'Asia/Kolkata':['IST','IST'],
+    'Asia/Colombo':['IST','IST'],        'Asia/Dhaka':['BST','BST'],
+    'Asia/Rangoon':['MMT','MMT'],        'Asia/Bangkok':['ICT','ICT'],
+    'Asia/Jakarta':['WIB','WIB'],        'Asia/Singapore':['SGT','SGT'],
+    'Asia/Kuala_Lumpur':['MYT','MYT'],   'Asia/Hong_Kong':['HKT','HKT'],
+    'Asia/Shanghai':['CST','CST'],       'Asia/Taipei':['CST','CST'],
+    'Asia/Seoul':['KST','KST'],          'Asia/Tokyo':['JST','JST'],
+    'Australia/Perth':['AWST','AWST'],   'Australia/Darwin':['ACST','ACST'],
+    'Australia/Adelaide':['ACST','ACDT'],'Australia/Sydney':['AEST','AEDT'],
+    'Australia/Melbourne':['AEST','AEDT'],'Australia/Brisbane':['AEST','AEST'],
+    'Pacific/Auckland':['NZST','NZDT'],  'Pacific/Fiji':['FJT','FJST'],
+    'Africa/Cairo':['EET','EET'],        'Africa/Johannesburg':['SAST','SAST'],
+    'Africa/Lagos':['WAT','WAT'],        'Africa/Nairobi':['EAT','EAT'],
+    'Africa/Casablanca':['WET','WEST'],  'Africa/Abidjan':['GMT','GMT'],
+};
+
 function getTzDetails(city) {
     const now = new Date();
     const utcDateStr = now.toLocaleString('en-US', { timeZone: 'UTC' });
     const tzDateStr = now.toLocaleString('en-US', { timeZone: city.timezone });
     const offsetHours = (new Date(tzDateStr) - new Date(utcDateStr)) / 3600000;
-    const tzName = new Intl.DateTimeFormat('en-US', { timeZone: city.timezone, timeZoneName: 'short' })
-        .formatToParts(now).find(p => p.type === 'timeZoneName').value;
+
+    const currentYear = now.getFullYear();
+    const getOffset = (d) => (new Date(d.toLocaleString('en-US', { timeZone: city.timezone })) - new Date(d.toLocaleString('en-US', { timeZone: 'UTC' }))) / 3600000;
+    const stdOffset = Math.min(getOffset(new Date(currentYear, 0, 1)), getOffset(new Date(currentYear, 6, 1)));
+    const isDst = offsetHours > stdOffset;
+
+    let tzName;
+    const abbr = TZ_ABBR[city.timezone];
+    if (abbr) {
+        tzName = isDst ? abbr[1] : abbr[0];
+    } else {
+        const intlName = new Intl.DateTimeFormat('en-US', { timeZone: city.timezone, timeZoneName: 'short' })
+            .formatToParts(now).find(p => p.type === 'timeZoneName').value;
+        tzName = /^GMT[+-]/.test(intlName) ? null : intlName;
+    }
+
     return { tzName, offsetHours };
 }
 
@@ -111,7 +172,7 @@ function renderTimeGrid() {
         headerRow.innerHTML += `
         <div class="header-cell ${isLocal ? 'local-tz' : ''}">
             <div class="h-city" title="${city.name}">${city.name}</div>
-            <div class="h-tz">${city.tzName}, UTC${city.offsetHours >= 0 ? '+' : ''}${city.offsetHours}</div>
+            <div class="h-tz">${city.tzName ? city.tzName + ', ' : ''}UTC${city.offsetHours >= 0 ? '+' : ''}${city.offsetHours}</div>
             <div class="h-time" id="live-${city.id}">--:--</div>
         </div>`;
     });
@@ -458,7 +519,7 @@ function populateModal() {
     userSettings.cities.forEach(city => {
         const deleteBtnHtml = city.custom
             ? `<button class="city-delete-btn" onclick="removeCustomCity('${city.id}')" title="Remove">×</button>`
-            : '';
+            : `<button class="city-delete-btn" style="visibility:hidden" tabindex="-1" aria-hidden="true">×</button>`;
         tzContainer.insertAdjacentHTML('beforeend', `
             <div class="city-toggle-item">
                 <div class="city-name-label">${city.name}</div>
