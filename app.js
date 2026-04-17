@@ -216,7 +216,7 @@ function renderEvents() {
 
     const { gridStart, gridEnd } = getGridBoundaries();
     const durationMs = gridEnd.getTime() - gridStart.getTime();
-    const allDayHeightPct = (30 / (24 * 60)) * 100;
+    const allDayHeightPct = (45 / (24 * 60)) * 100;
 
     const allDayEvents = events.filter(ev => ev.allDay);
     const timedEvents = events.filter(ev => !ev.allDay);
