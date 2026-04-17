@@ -229,7 +229,6 @@ function renderEvents() {
         block.style.left = '1%';
         block.style.width = '98%';
         block.style.borderColor = ev.color || '#1a73e8';
-        block.style.color = ev.color || '#1a73e8';
         block.innerText = ev.title;
         block.title = ev.title;
         if (ev.link) block.onclick = () => window.open(ev.link, '_blank');
