@@ -164,9 +164,19 @@ body.dark .header-cell.local-tz { background-color: rgba(91, 156, 244, 0.1); }
 .calendar-event {
     position: absolute; border-radius: 6px; padding: 3px 6px;
     font-size: 0.75rem; font-weight: 500; color: #fff; box-sizing: border-box;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    overflow: hidden; overflow-wrap: break-word;
     pointer-events: auto; cursor: pointer;
     box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+.calendar-event-allday {
+    background: transparent !important;
+    border: 2.5px solid;
+    box-shadow: none;
+    z-index: 11;
+    border-radius: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .nav-arrow { background: none; border: none; cursor: pointer; color: var(--text-secondary); font-size: 1.1rem; font-weight: bold; padding: 0 5px; }
 
@@ -375,6 +385,48 @@ body.dark .connect-status.error { color: #f28b82; }
 
 /* Calendar controls (connected state) */
 .cal-controls { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+
+/* ─── City search ────────────────────────────────────────────────────────── */
+.city-search-section {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--modal-border);
+}
+.city-search-label {
+    font-size: 0.85rem; font-weight: 600;
+    color: var(--text-secondary); margin-bottom: 6px;
+}
+.city-search-wrapper { position: relative; }
+.city-search-wrapper input {
+    width: 100%; padding: 7px 10px;
+    border: 1px solid var(--input-border); border-radius: 6px;
+    font-family: inherit; font-size: 0.85rem;
+    background: var(--input-bg); color: var(--text-main);
+    box-sizing: border-box; outline: none;
+    transition: border-color 0.15s;
+}
+.city-search-wrapper input:focus { border-color: var(--accent-color); }
+.city-search-dropdown {
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: var(--modal-bg);
+    border: 1px solid var(--input-border); border-radius: 6px;
+    margin-top: 2px; z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    overflow: hidden;
+}
+.city-search-item {
+    padding: 8px 12px; font-size: 0.85rem;
+    color: var(--text-main); cursor: pointer; transition: background 0.1s;
+}
+.city-search-item:hover { background: var(--btn-secondary-bg); }
+.city-delete-btn {
+    background: none; border: none;
+    color: var(--text-secondary); cursor: pointer;
+    font-size: 1.1rem; padding: 0 4px; line-height: 1;
+    margin-left: 4px; transition: color 0.15s; flex-shrink: 0;
+}
+.city-delete-btn:hover { color: #c5221f; }
+body.dark .city-delete-btn:hover { color: #f28b82; }
 
 /* ─── Responsive ─────────────────────────────────────────────────────────── */
 @media (max-width: 600px) {

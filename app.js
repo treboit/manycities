@@ -28,6 +28,7 @@ window.changeDay = function(delta) {
 let isCalendarConnected = false, calendarList = [];
 const eventCache = {};         // { [dayOffset]: sortedEventArray }
 let instructionsOpen = false;
+let citySearchTimer = null;
 
 function prefetchOffsets() {
     return [-1, 0, 1, 2, 3].map(d => dayOffset + d);
@@ -42,6 +43,9 @@ function loadSettings() {
             if (savedCity) return { ...cfgCity, visible: savedCity.visible, workStart: savedCity.workStart, workEnd: savedCity.workEnd };
             return { ...cfgCity };
         });
+        const defaultIds = new Set(DEFAULT_CONFIG.cities.map(c => c.id));
+        const customCities = (parsed.cities || []).filter(c => !defaultIds.has(c.id));
+        userSettings.cities.push(...customCities);
         userSettings.activeCalendars = parsed.activeCalendars || [];
         userSettings.appsScriptUrl = parsed.appsScriptUrl || '';
         userSettings.appsScriptToken = parsed.appsScriptToken || '';
@@ -61,12 +65,8 @@ function getTzDetails(city) {
     const utcDateStr = now.toLocaleString('en-US', { timeZone: 'UTC' });
     const tzDateStr = now.toLocaleString('en-US', { timeZone: city.timezone });
     const offsetHours = (new Date(tzDateStr) - new Date(utcDateStr)) / 3600000;
-
-    const currentYear = now.getFullYear();
-    const getOffset = (d) => (new Date(d.toLocaleString('en-US', { timeZone: city.timezone })) - new Date(d.toLocaleString('en-US', { timeZone: 'UTC' }))) / 3600000;
-    const stdOffset = Math.min(getOffset(new Date(currentYear, 0, 1)), getOffset(new Date(currentYear, 6, 1)));
-    const tzName = (offsetHours > stdOffset) ? city.tzDst : city.tzStd;
-
+    const tzName = new Intl.DateTimeFormat('en-US', { timeZone: city.timezone, timeZoneName: 'short' })
+        .formatToParts(now).find(p => p.type === 'timeZoneName').value;
     return { tzName, offsetHours };
 }
 
@@ -155,6 +155,27 @@ function renderEvents() {
 
     const { gridStart, gridEnd } = getGridBoundaries();
     const durationMs = gridEnd.getTime() - gridStart.getTime();
+    const allDayHeightPct = (30 / (24 * 60)) * 100;
+
+    const allDayEvents = events.filter(ev => ev.allDay);
+    const timedEvents = events.filter(ev => !ev.allDay);
+
+    allDayEvents.forEach((ev, i) => {
+        const block = document.createElement('div');
+        block.className = 'calendar-event calendar-event-allday';
+        block.style.top = `${i * allDayHeightPct}%`;
+        block.style.height = `${allDayHeightPct}%`;
+        block.style.left = '1%';
+        block.style.width = '98%';
+        block.style.borderColor = ev.color || '#1a73e8';
+        block.style.color = ev.color || '#1a73e8';
+        block.innerText = ev.title;
+        block.title = ev.title;
+        if (ev.link) block.onclick = () => window.open(ev.link, '_blank');
+        layer.appendChild(block);
+    });
+
+    if (timedEvents.length === 0) return;
 
     let columns = [], lastEventEnding = null;
     const packEvents = (cols) => {
@@ -164,7 +185,7 @@ function renderEvents() {
         }));
     };
 
-    events.forEach(ev => {
+    timedEvents.forEach(ev => {
         if (lastEventEnding !== null && ev.startMs >= lastEventEnding) { packEvents(columns); columns = []; lastEventEnding = null; }
         let placed = false;
         for (let col of columns) {
@@ -175,7 +196,7 @@ function renderEvents() {
     });
     if (columns.length > 0) packEvents(columns);
 
-    events.forEach(ev => {
+    timedEvents.forEach(ev => {
         const block = document.createElement('div');
         block.className = 'calendar-event';
         block.style.top = `${((ev.startMs - gridStart.getTime()) / durationMs) * 100}%`;
@@ -238,6 +259,7 @@ async function fetchEventsRange(offsets) {
                 .filter(e => new Date(e.start) < gridEnd && new Date(e.end) > gridStart)
                 .map(e => ({
                     title: e.title,
+                    allDay: e.allDay || (new Date(e.end) - new Date(e.start) >= 22 * 3600 * 1000),
                     startMs: Math.max(new Date(e.start).getTime(), gridStart.getTime()),
                     endMs:   Math.min(new Date(e.end).getTime(),   gridEnd.getTime()),
                     color: e.color || '#1a73e8',
@@ -361,13 +383,82 @@ window.copyScriptCode = function(btn) {
     });
 };
 
+// ── City search ─────────────────────────────────────────────────────────────
+
+async function searchCities(query) {
+    if (query.length < 2) { hideCityDropdown(); return; }
+    try {
+        const resp = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=en&format=json`);
+        const data = await resp.json();
+        const dropdown = document.getElementById('city-search-dropdown');
+        if (!dropdown) return;
+        const results = data.results || [];
+        dropdown.innerHTML = '';
+        if (results.length === 0) { dropdown.style.display = 'none'; return; }
+        results.forEach(r => {
+            const label = r.admin1 && r.admin1 !== r.name
+                ? `${r.name}, ${r.admin1}, ${r.country}`
+                : `${r.name}, ${r.country}`;
+            const item = document.createElement('div');
+            item.className = 'city-search-item';
+            item.textContent = label;
+            item.onmousedown = () => addCustomCity(r);
+            dropdown.appendChild(item);
+        });
+        dropdown.style.display = 'block';
+    } catch (e) { hideCityDropdown(); }
+}
+
+function hideCityDropdown() {
+    const dropdown = document.getElementById('city-search-dropdown');
+    if (dropdown) dropdown.style.display = 'none';
+}
+
+function addCustomCity(result) {
+    const id = `custom_${result.id}`;
+    if (userSettings.cities.find(c => c.id === id)) {
+        hideCityDropdown();
+        const input = document.getElementById('city-search-input');
+        if (input) input.value = '';
+        return;
+    }
+    userSettings.cities.push({
+        id,
+        name: result.name,
+        timezone: result.timezone,
+        lat: result.latitude,
+        lon: result.longitude,
+        workStart: 9,
+        workEnd: 18,
+        visible: true,
+        custom: true
+    });
+    saveSettings();
+    const input = document.getElementById('city-search-input');
+    if (input) input.value = '';
+    hideCityDropdown();
+    populateModal();
+}
+
+window.removeCustomCity = function(cityId) {
+    userSettings.cities = userSettings.cities.filter(c => c.id !== cityId);
+    saveSettings();
+    populateModal();
+};
+
 // ── Modal population ────────────────────────────────────────────────────────
 
 function populateModal() {
     // --- Time Zones column ---
+    const existingSearch = document.getElementById('city-search-section');
+    if (existingSearch) existingSearch.remove();
+
     const tzContainer = document.getElementById('city-toggles');
     tzContainer.innerHTML = '';
     userSettings.cities.forEach(city => {
+        const deleteBtnHtml = city.custom
+            ? `<button class="city-delete-btn" onclick="removeCustomCity('${city.id}')" title="Remove">×</button>`
+            : '';
         tzContainer.insertAdjacentHTML('beforeend', `
             <div class="city-toggle-item">
                 <div class="city-name-label">${city.name}</div>
@@ -379,9 +470,31 @@ function populateModal() {
                     <input type="checkbox" id="toggle-${city.id}" ${city.visible ? 'checked' : ''}>
                     <span class="slider"></span>
                 </label>
+                ${deleteBtnHtml}
             </div>
         `);
     });
+
+    tzContainer.insertAdjacentHTML('afterend', `
+        <div class="city-search-section" id="city-search-section">
+            <div class="city-search-label">Add city</div>
+            <div class="city-search-wrapper">
+                <input type="text" id="city-search-input" placeholder="Search for a city…" autocomplete="off">
+                <div id="city-search-dropdown" class="city-search-dropdown" style="display:none;"></div>
+            </div>
+        </div>
+    `);
+
+    const searchInput = document.getElementById('city-search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(citySearchTimer);
+            citySearchTimer = setTimeout(() => searchCities(e.target.value.trim()), 300);
+        });
+        searchInput.addEventListener('blur', () => {
+            setTimeout(hideCityDropdown, 150);
+        });
+    }
 
     // --- Calendar column ---
     const calTitle = document.getElementById('cal-sync-title');
