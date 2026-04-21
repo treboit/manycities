@@ -2,13 +2,15 @@
 
 A minimal, offline-first dashboard for international teams — see what time it is across your cities, visualize work-hour overlaps, and optionally overlay your Google Calendar events.
 
-**[manycities](https://treboit.github.io/manycities/)**
+**[manycities.app](https://treboit.github.io/manycities/)**
+
+![Manycities screenshot](screenshot.png)
 
 ---
 
 ## Features
 
-- Time grid showing current time across multiple cities by your choice, and colour-coded work hours to find overlap windows at a glance
+- Time grid showing current time across multiple cities, and colour-coded work hours to find overlap windows at a glance
 - Weather panel with current temperatures (°C / °F)
 - Optional Google Calendar overlay
 - No account, no sign-up, no server
@@ -48,3 +50,18 @@ This site uses [Umami](https://umami.is/) for anonymous, privacy-friendly analyt
 | Theme / format preferences | Your browser (localStorage) | No |
 | Page view count | Umami (anonymous) | Umami only (no personal data) |
 
+---
+
+## Running locally
+
+No build step required — open `index.html` directly in a browser, or serve the folder with any static file server:
+
+```bash
+npx serve .
+```
+
+---
+
+## License
+
+MIT

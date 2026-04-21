@@ -316,7 +316,16 @@ async function fetchEventsRange(offsets) {
         offsets.forEach(o => {
             const { gridStart, gridEnd } = getGridBoundaries(o);
             eventCache[o] = raw
-                .filter(e => new Date(e.start) < gridEnd && new Date(e.end) > gridStart)
+                .filter(e => {
+                    const sMs = new Date(e.start).getTime();
+                    const eMs = new Date(e.end).getTime();
+                    if (e.allDay || (eMs - sMs >= 22 * 3600 * 1000)) {
+                        // All-day: show only in the grid that contains the event midpoint
+                        const mid = (sMs + eMs) / 2;
+                        return mid >= gridStart.getTime() && mid < gridEnd.getTime();
+                    }
+                    return sMs < gridEnd.getTime() && eMs > gridStart.getTime();
+                })
                 .map(e => ({
                     title: e.title,
                     allDay: e.allDay || (new Date(e.end) - new Date(e.start) >= 22 * 3600 * 1000),
